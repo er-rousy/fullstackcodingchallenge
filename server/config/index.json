@@ -1,0 +1,5 @@
+{
+    "dbUri": "mongodb://errousy:iRkHaT7eQOdINDne@cluster0-shard-00-00-uqa4l.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin",
+
+    "jwtSecret": "fayssal errousy<fai_ssal@live.fr>"
+  }
