@@ -1,0 +1,94 @@
+// default media query break points
+// based on Flexboxgrid grid system
+$xs-min: 30;
+$sm-min: 48;
+$md-min: 64;
+$lg-min: 75;
+$screen-xs-min: "#{$xs-min}em";
+$screen-sm-min: "#{$sm-min}em";
+$screen-md-min: "#{$md-min}em";
+$screen-lg-min: "#{$lg-min}em";
+$sm-viewport: "only screen and (min-width: #{$screen-sm-min})";
+$md-viewport: "only screen and (min-width: #{$screen-md-min})";
+$lg-viewport: "only screen and (min-width: #{$screen-lg-min})";
+
+body {
+    margin: 0;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+// bold fonts are ugly! don't you agree?
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+}
+
+// TODO: refactor, move this into component
+.masonry-grid {
+    // use CSS3 columns feature to create masonry-like effect
+    // TODO: fix columns filling behavior
+    column-count: 2;
+    column-gap: 0;
+    break-inside: avoid;
+    margin: 0;
+
+    &.images {
+        @media #{$sm-viewport} {
+            column-count: 2;
+        }
+        @media #{$md-viewport} {
+            column-count: 3;
+        }
+        @media #{$lg-viewport} {
+            column-count: 4;
+        }
+
+        & > .item {
+            position: relative;
+            width: 100%;
+            display: block;
+            cursor: pointer;
+            
+            & > .select-mark {
+                display: none;
+                position: absolute;
+                top: 0.5em;
+                left: 0.5em;
+                padding: 0.25em;
+                background: rgba(0, 0, 0, 0.5);
+            }
+            // TOOD: feature, can I haz a better look & feel ? (° ͜ʖ °)
+            & > .title {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 0.25em;
+                background: rgba(0, 0, 0, 0.75);
+                // title font related properties like size and color are set as inline style attr
+            }
+            &.selected {
+                & > .select-mark {
+                    display: initial;
+                }
+            }
+        }
+        & > .item > .image {
+            width: 100%;
+            display: block;
+        }
+    }
+}
+
+.ml3 {
+    margin-left: 1rem;
+}
+.success-message {
+    color: #62f562 !important;
+}
+.error-message {
+    color: #f44887 !important;
+}

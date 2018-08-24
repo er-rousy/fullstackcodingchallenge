@@ -1,7 +1,9 @@
 const express = require('express');
 const validator = require('validator');
 const passport = require('passport');
-
+const jwt = require('jsonwebtoken');
+const User = require('mongoose').model('User');
+const config = require('./../config');
 const router = new express.Router();
 
 /**
@@ -10,7 +12,7 @@ const router = new express.Router();
  * @param {object} payload - the HTTP body message
  * @returns {object} The result of validation. Object contains a boolean validation result,
  *                   errors tips, and a global message for the whole form.
- */
+ **/
 function validateSignupForm(payload) {
   const errors = {};
   let isFormValid = true;
@@ -55,7 +57,7 @@ function validateLoginForm(payload) {
   let isFormValid = true;
   let message = '';
 
-  if (!payload || typeof payload.email !== 'string' || payload.email.trim().length === 0 || !validator.isEmail(payload.email)){
+  if (!payload || typeof payload.email !== 'string' || payload.email.trim().length === 0 || !validator.isEmail(payload.email)) {
     isFormValid = false;
     errors.email = 'Please provide your email address.';
   }
@@ -76,6 +78,38 @@ function validateLoginForm(payload) {
   };
 }
 
+
+
+
+
+/**
+ * Validate the login form
+ *
+ * @param {object} payload - the HTTP body message
+ * @returns {object} The result of validation. Object contains a boolean validation result,
+ *                   errors tips, and a global message for the whole form.
+ */
+function validateTokenBody(payload) {
+  const errors = {};
+  let isValid = true;
+  let message = '';
+
+  if (!payload || typeof payload.token !== 'string' || payload.token.trim().length === 0) {
+    isValid = false;
+    errors.token = 'Please provide your token valide.';
+  }
+
+
+  if (!isValid) {
+    message = 'Check the body for errors.';
+  }
+
+  return {
+    success: isValid,
+    message,
+    errors
+  };
+}
 router.post('/signup', (req, res, next) => {
   const validationResult = validateSignupForm(req.body);
   if (!validationResult.success) {
@@ -113,6 +147,48 @@ router.post('/signup', (req, res, next) => {
     });
   })(req, res, next);
 });
+
+router.post('/validetoken', (req, res, next) => {
+  const validationResult = validateTokenBody(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json({
+      success: false,
+      message: validationResult.message,
+      errors: validationResult.errors
+    });
+  }
+
+
+
+  // decode the token using a secret key-phrase
+  return jwt.verify(req.body.token, config.jwtSecret, (err, decoded) => {
+    // the 401 code is for unauthorized status
+    if (err) {
+      return res.status(401).json({
+        success: false
+      });
+    }
+
+    const userId = decoded.sub;
+
+    // check if a user exists
+    return User.findById(userId, (userErr, user) => {
+      if (userErr || !user) {
+        return res.status(401).json({
+          success: false
+        });
+      }
+       user["password"] = undefined;;
+      return res.status(200).json({
+        success: true,
+        user
+      });
+      return next();
+    });
+  });
+
+});
+
 
 router.post('/login', (req, res, next) => {
   const validationResult = validateLoginForm(req.body);
